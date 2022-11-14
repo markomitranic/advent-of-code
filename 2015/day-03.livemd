@@ -1,0 +1,186 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Day 3: Perfectly Spherical Houses in a Vacuum
+
+```elixir
+Mix.install([])
+File.cd!(Path.dirname(__ENV__.file))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Part 1
+
+* [Link: Advent of Code](https://adventofcode.com/2015/)
+* [Link: Paste to Markdown](https://euangoddard.github.io/clipboard2markdown/)
+
+<!-- livebook:{"break_markdown":true} -->
+
+Santa is delivering presents to an infinite two-dimensional grid of houses.
+
+He begins by delivering a present to the house at his starting location, and then an elf at the North Pole calls him via radio and tells him where to move next. Moves are always exactly one house to the north (`^`), south (`v`), east (`>`), or west (`<`). After each move, he delivers another present to the house at his new location.
+
+However, the elf back at the north pole has had a little too much eggnog, and so his directions are a little off, and Santa ends up visiting some houses more than once. How many houses receive at least one present?
+
+For example:
+
+* `>` delivers presents to `2` houses: one at the starting location, and one to the east.
+* `^>v<` delivers presents to `4` houses in a square, including twice to the house at his starting/ending location.
+* `^v^v^v^v^v` delivers a bunch of presents to some very lucky children at only `2` houses.
+
+```elixir
+{end_x, end_y, houses} =
+  File.read!('day-03-input.txt')
+  |> String.graphemes()
+  |> Enum.reduce({0, 0, %{}}, fn
+    ">", {x, y, acc} ->
+      {x - 1, y, Map.put(acc, "#{x - 1}_#{y}", Map.get(acc, "#{x - 1}_#{y}", 0) + 1)}
+
+    "<", {x, y, acc} ->
+      {x + 1, y, Map.put(acc, "#{x + 1}_#{y}", Map.get(acc, "#{x + 1}_#{y}", 0) + 1)}
+
+    "^", {x, y, acc} ->
+      {x, y + 1, Map.put(acc, "#{x}_#{y + 1}", Map.get(acc, "#{x}_#{y + 1}", 0) + 1)}
+
+    "v", {x, y, acc} ->
+      {x, y - 1, Map.put(acc, "#{x}_#{y - 1}", Map.get(acc, "#{x}_#{y - 1}", 0) + 1)}
+  end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{-41, -87,
+ %{
+   "-80_-54" => 1,
+   "-50_-83" => 4,
+   "-81_-42" => 1,
+   "-11_-13" => 5,
+   "-49_-6" => 4,
+   "-12_28" => 2,
+   "-11_-21" => 1,
+   "-50_-78" => 1,
+   "-121_-63" => 3,
+   "1_-14" => 4,
+   "-53_-82" => 8,
+   "-17_16" => 1,
+   "-55_-82" => 11,
+   "-56_-78" => 2,
+   "-53_-17" => 1,
+   "-47_-86" => 2,
+   "0_-21" => 5,
+   "-88_-72" => 8,
+   "-91_-78" => 2,
+   "-118_-63" => 3,
+   "-56_-10" => 5,
+   "-15_12" => 3,
+   "1_-12" => 1,
+   "-19_26" => 6,
+   "6_-10" => 6,
+   "-18_5" => 4,
+   "-2_-24" => 3,
+   "-69_-78" => 6,
+   "-19_25" => 10,
+   "-94_-58" => 1,
+   "-39_-82" => 8,
+   "-1_-17" => 4,
+   "-47_-6" => 4,
+   "-71_-75" => 3,
+   "-79_-55" => 1,
+   "-57_-10" => 2,
+   "-97_-73" => 1,
+   "-90_-58" => 1,
+   "-22_24" => 3,
+   "-71_-32" => 2,
+   "-13_16" => 1,
+   "-1_-15" => 3,
+   "-65_-13" => 1,
+   "-19_4" => 4,
+   "-48_-10" => 1,
+   "-67_-29" => 5,
+   "-68_-18" => 1,
+   ...
+ }}
+```
+
+```elixir
+houses
+|> Enum.filter(fn {_key, value} -> value > 0 end)
+|> Enum.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2565
+```
+
+## Part 2
+
+The next year, to speed up the process, Santa creates a robot version of himself, Robo-Santa, to deliver presents with him.
+
+Santa and Robo-Santa start at the same location (delivering two presents to the same starting house), then take turns moving based on instructions from the elf, who is eggnoggedly reading from the same script as the previous year.
+
+This year, how many houses receive at least one present?
+
+For example:
+
+* `^v` delivers presents to `3` houses, because Santa goes north, and then Robo-Santa goes south.
+* `^>v<` now delivers presents to `3` houses, and Santa and Robo-Santa end up back where they started.
+* `^v^v^v^v^v` now delivers presents to `11` houses, with Santa going one direction and Robo-Santa going the other.
+
+```elixir
+defmodule Robosanta do
+  def route_calc(route) do
+    route
+    |> Enum.reduce({0, 0, %{}}, fn
+      ">", {x, y, acc} ->
+        {x - 1, y, Map.put(acc, "#{x - 1}_#{y}", Map.get(acc, "#{x - 1}_#{y}", 0) + 1)}
+
+      "<", {x, y, acc} ->
+        {x + 1, y, Map.put(acc, "#{x + 1}_#{y}", Map.get(acc, "#{x + 1}_#{y}", 0) + 1)}
+
+      "^", {x, y, acc} ->
+        {x, y + 1, Map.put(acc, "#{x}_#{y + 1}", Map.get(acc, "#{x}_#{y + 1}", 0) + 1)}
+
+      "v", {x, y, acc} ->
+        {x, y - 1, Map.put(acc, "#{x}_#{y - 1}", Map.get(acc, "#{x}_#{y - 1}", 0) + 1)}
+    end)
+    |> elem(2)
+    |> Enum.filter(fn {_key, value} -> value > 0 end)
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, Robosanta, <<70, 79, 82, 49, 0, 0, 15, ...>>, {:route_calc, 1}}
+```
+
+```elixir
+{santa_route, robosanta_route} =
+  File.read!('day-03-input.txt')
+  |> String.graphemes()
+  |> Enum.chunk_every(2)
+  |> Enum.zip()
+  |> Enum.map(&Tuple.to_list/1)
+  |> List.to_tuple()
+
+route =
+  Robosanta.route_calc(santa_route)
+  |> Map.new()
+  |> Map.merge(robosanta_route |> Robosanta.route_calc() |> Map.new())
+  |> Map.merge(%{"0_0" => 1})
+  |> Enum.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2639
+```

@@ -1,0 +1,125 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Day 4: The Ideal Stocking Stuffer
+
+```elixir
+Mix.install([])
+File.cd!(Path.dirname(__ENV__.file))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Part 1
+
+* [Link: Advent of Code](https://adventofcode.com/2015/)
+* [Link: Paste to Markdown](https://euangoddard.github.io/clipboard2markdown/)
+
+<!-- livebook:{"break_markdown":true} -->
+
+Santa needs help [mining](https://en.wikipedia.org/wiki/Bitcoin#Mining) some AdventCoins (very similar to [bitcoins](https://en.wikipedia.org/wiki/Bitcoin)) to use as gifts for all the economically forward-thinking little girls and boys.
+
+To do this, he needs to find [MD5](https://en.wikipedia.org/wiki/MD5) hashes which, in [hexadecimal](https://en.wikipedia.org/wiki/Hexadecimal), start with at least five zeroes. The input to the MD5 hash is some secret key (your puzzle input, given below) followed by a number in decimal. To mine AdventCoins, you must find Santa the lowest positive number (no leading zeroes: `1`, `2`, `3`, ...) that produces such a hash.
+
+For example:
+
+* If your secret key is `abcdef`, the answer is `609043`, because the MD5 hash of `abcdef609043` starts with five zeroes (`000001dbbfa...`), and it is the lowest such number to do so.
+* If your secret key is `pqrstuv`, the lowest number it combines with to make an MD5 hash starting with five zeroes is `1048970`; that is, the MD5 hash of `pqrstuv1048970` looks like `000006136ef...`.
+
+Your puzzle input is `ckczppom`.
+
+```elixir
+defmodule AdventCoins do
+  def find_suffix(input),
+    do: find_suffix(input, 0, :crypto.hash(:md5, "#{input}0") |> Base.encode16())
+
+  def find_suffix(_input, input_suffix, "00000" <> _result), do: input_suffix
+
+  def find_suffix(input, input_suffix, _result),
+    do:
+      find_suffix(
+        input,
+        input_suffix + 1,
+        :crypto.hash(:md5, "#{input}#{input_suffix + 1}") |> Base.encode16()
+      )
+end
+
+AdventCoins.find_suffix("ckczppom")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+117946
+```
+
+```elixir
+"00000" <> _rest = :md5 |> :crypto.hash("ckczppom117946") |> Base.encode16()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"00000FE1C139A2C710E9A5C03EC1AF03"
+```
+
+## Part 2
+
+Now find one that starts with **six zeroes**.
+
+```elixir
+defmodule AdventCoins do
+  def find_suffix(input),
+    do: find_suffix(input, 0, :crypto.hash(:md5, "#{input}0") |> Base.encode16())
+
+  def find_suffix(_input, input_suffix, "000000" <> _result), do: input_suffix
+
+  def find_suffix(input, input_suffix, _result),
+    do:
+      find_suffix(
+        input,
+        input_suffix + 1,
+        :crypto.hash(:md5, "#{input}#{input_suffix + 1}") |> Base.encode16()
+      )
+end
+
+AdventCoins.find_suffix("ckczppom")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+3938038
+```
+
+```elixir
+"000000" <> _rest = :md5 |> :crypto.hash("ckczppom3938038") |> Base.encode16()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"00000028023E3B4729684757F8DC3FBF"
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+
+11:23:29.828 [error] Task #PID<0.188.0> started from #PID<0.136.0> terminating
+** (FunctionClauseError) no function clause matching in Livebook.Intellisense.build_md/2
+    lib/livebook/intellisense.ex:605: Livebook.Intellisense.build_md([[[[[[], "\n", "This module provides a set of cryptographic functions.", "\n"], "\n", [["* **Hash functions**", "\n", "", "\n", "  * **SHA1, SHA2**", "\n", "", "\n", "    [Secure Hash Standard [FIPS PUB 180-4]](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)", "\n", "", "\n", "  * **SHA3**", "\n", "", "\n", "    [SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions [FIPS PUB 202]](https://www.nist.gov/publications/sha-3-standard-permutation-based-hash-and-extendable-output-functions?pub_id=919061)", "\n", "", "\n", "  * **BLAKE2**", "\n", "", "\n", "    [BLAKE2 — fast secure hashing](https://blake2.net/)", "\n", "", "\n", "  * **MD5**", "\n", "", "\n", "    [The MD5 Message Digest Algorithm [RFC 1321]](http://www.ietf.org/rfc/rfc1321.txt)", "\n", "", "\n", "  * **MD4**", "\n", "", "\n", "    [The MD4 Message Digest Algorithm [RFC 1320]](http://www.ietf.org/rfc/rfc1320.txt)"], "\n\n", ["* **MACs - Message Authentication Codes**", "\n", "", "\n", "  * **Hmac functions**", "\n", "", "\n", "    [Keyed-Hashing for Message Authentication [RFC 2104]](http://www.ietf.org/rfc/rfc2104.txt)", "\n", "", "\n", "  * **Cmac functions**", "\n", "", "\n", "    [The AES-CMAC Algorithm [RFC 4493]](http://www.ietf.org/rfc/rfc4493.txt)", "\n", "", "\n", "  * **POLY1305**", "\n", "", "\n", "    [ChaCha20 and Poly1305 for IETF Protocols [RFC 7539]](http://www.ietf.org/rfc/rfc7539.txt)"], "\n\n", ["* **Symmetric Ciphers**", "\n", "", "\n", "  * **DES, 3DES and AES**", "\n", "", "\n", "    [Block Cipher Techniques [NIST]](https://csrc.nist.gov/projects/block-cipher-techniques)", "\n", "", "\n", "  * **Blowfish**", "\n", "", "\n", "    [Fast Software Encryption, Cambridge Security Workshop Proceedings (December 1993), Springer-Verlag, 1994, pp. 191-204.](https://www.schneier.com/academic/archives/1994/09/description_of_a_new.html)", "\n", "", "\n", "  * **Chacha20**", "\n", "", "\n", "    [ChaCha20 and Poly1305 for IETF Protocols [RFC 7539]](http://www.ietf.org/rfc/rfc7539.txt)", "\n", "", "\n", "  * **Chacha20_poly1305**", "\n", "", "\n", "    [ChaCha20 and Poly1305 for IETF Protocols [RFC 7539]](http://www.ietf.org/rfc/rfc7539.txt)"], "\n\n", ["* **Modes**", "\n", "", "\n", "  * **ECB, CBC, CFB, OFB and CTR**", "\n", "", "\n", "    [Recommendation for Block Cipher Modes of Operation: Methods and Techniques [NIST SP 800-38A]](https://csrc.nist.gov/publications/detail/sp/800-38a/final)", "\n", "", "\n", "  * **GCM**", "\n", "", "\n", "    [Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC [NIST SP 800-38D]](https://csrc.nist.gov/publications/detail/sp/800-38d/final)", "\n", "", "\n", "  * **CCM**", "\n", "", "\n", "    [Recommendation for Block Cipher Modes of Operation: The CCM Mode for Authentication and Confidentiality [NIST SP 800-38C]](https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-38c.pdf)"], "\n\n", ["* **Asymmetric Ciphers - Public Key Techniques**", "\n", "", "\n", "  * **RSA**", "\n", "", "\n", "    [PKCS #1: RSA Cryptography Specifications [RFC 3447]](http://www.ietf.org/rfc/rfc3447.txt)", "\n", "", "\n", "  * **DSS**", "\n", "", "\n", "    [Digital Signature Standard (DSS) [FIPS 186-4]](https://csrc.nist.gov/publications/detail/fips/186/4/final)", "\n", "", "\n", "  * **ECDSA**", "\n", "", "\n", "    [Elliptic Curve Digital Signature Algorithm [ECDSA]](http://csrc.nist.gov/groups/STM/cavp/documents/dss2/ecdsa2vs.pdf)", "\n", "", "\n", "  * **SRP**", "\n", "", "\n", "    [The SRP Authentication and Key Exchange System [RFC 2945]](http://www.ietf.org/rfc/rfc2945.txt)"]], "\n"], "\n", [["> ", "**NOTE**"], "\n", ["> ", ""], "\n", ["> ", "The actual supported algorithms and features depends on their availability in the actual libcrypto used. See the [crypto (App)](crypto:crypto_app) about dependencies."], "\n", ["> ", ""], "\n", ["> ", "Enabling FIPS mode will also disable algorithms and features."]], "\n"], "\n", "The [CRYPTO User's Guide](crypto:index) has more information on FIPS, Engines and Algorithm Details like key lengths.", "\n"], "\n", ["##", " ", [[], "Exceptions"]], "\n"], [{:div, [ghlink: "maint/lib/crypto/doc/src/crypto.xml#L550"], [{:h3, [], ["Atoms - the older style"]}, {:a, [id: "error_old"], []}, {:p, [], ["The exception ", {:code, [], ["error:badarg"]}, " signifies that one or more arguments are of wrong data type, or are otherwise badly formed."]}, {:p, [], ["The exception ", {:code, [], ["error:notsup"]}, " signifies that the algorithm is known but is not supported by current underlying libcrypto or explicitly disabled when building that."]}, {:p, [], ["For a list of supported algorithms, see ", {:a, [href: "crypto:crypto#supports/1", rel: "https://erlang.org/doc/link/seemfa"], ["supports(ciphers)"]}, "."]}]}, {:div, [ghlink: "maint/lib/crypto/doc/src/crypto.xml#L563"], [{:h3, [], ["3-tuples - the new style"]}, {:a, [id: "error_3tup"], []}, {:p, [], ["The exception is:"]}, {:pre, [], [{:code, [], ["error:{Tag, C_FileInfo, Description}\n\nTag = badarg | notsup | error\nC_FileInfo = term()    % Usually only useful for the OTP maintainer\nDescription = string() % Clear text, sometimes only useful for the OTP maintainer\n      "]}]}, {:p, [], ["The exception tags are:"]}, {:dl, [], [{:dt, [], [{:code, [], ["badarg"]}]}, {:dd, [], [{:p, [], ["Signifies that one or more arguments are of wrong data type or are otherwise badly formed."]}]}, {:dt, [], [{:code, [], ["notsup"]}]}, {:dd, [], [{:p, [], ["Signifies that the algorithm is known but is not supported by current underlying libcrypto or explicitly disabled when building that one."]}]}, {:dt, [], [{:code, [], ["error"]}]}, {:dd, [], [{:p, [], ["An error condition that should not occur, for example a memory allocation failed or the underlying cryptolib returned an error code, for example ", {:code, [], ["\"Can't initialize context, step 1\""]}, ". Those text usually needs searching the C-code to be understood."]}]}]}, {:p, [], ["Usually there are more information in the call stack about which argument caused the exception and what the values where."]}, {:p, [], ["To catch the exception, use for example:"]}, {:pre, [], [{:code, [], ["try crypto:crypto_init(Ciph, Key, IV, true)\n    catch\n        error:{Tag, _C_FileInfo, Description} ->\n            do_something(......)\n         .....\nend\n\t"]}]}]}])
+    lib/livebook/intellisense.ex:598: Livebook.Intellisense.erlang_html_to_md/1
+    lib/livebook/intellisense.ex:434: Livebook.Intellisense.format_details_item/1
+    (elixir 1.14.0) lib/enum.ex:1658: Enum."-map/2-lists^map/1-0-"/2
+    lib/livebook/intellisense.ex:404: Livebook.Intellisense.get_details/3
+    lib/livebook/runtime/erl_dist/runtime_server.ex:409: anonymous fn/4 in Livebook.Runtime.ErlDist.RuntimeServer.handle_cast/2
+    (elixir 1.14.0) lib/task/supervised.ex:89: Task.Supervised.invoke_mfa/2
+    (stdlib 4.0.1) proc_lib.erl:240: :proc_lib.init_p_do_apply/3
+Function: #Function<4.20643116/0 in Livebook.Runtime.ErlDist.RuntimeServer.handle_cast/2>
+    Args: []
+
+```
