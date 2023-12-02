@@ -1,0 +1,126 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Untitled notebook
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.11.3"}
+])
+```
+
+## Day 1: Trebuchet?!
+
+```elixir
+"""
+1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet
+"""
+|> String.split()
+|> Enum.map(fn row ->
+  row
+  |> String.replace(~r/[^\d]/, "")
+  |> then(fn row -> String.first(row) <> String.last(row) end)
+  |> Integer.parse()
+  |> elem(0)
+end)
+|> Enum.sum()
+
+# 142
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+142
+```
+
+```elixir
+(__DIR__ <> "/assets/day-1-calibration.txt")
+|> File.read!()
+|> String.split()
+|> Enum.map(fn row ->
+  row
+  |> String.replace(~r/[^\d]/, "")
+  |> then(fn row -> String.first(row) <> String.last(row) end)
+  |> Integer.parse()
+  |> elem(0)
+end)
+|> Enum.sum()
+
+# 56397
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+56397
+```
+
+## Part Two
+
+```elixir
+defmodule PartTwo do
+  def parse(row),
+    do:
+      row
+      |> filter_digits()
+      |> then(&(String.first(&1) <> String.last(&1)))
+      |> String.to_integer()
+
+  def filter_digits(<<>>), do: <<>>
+  def filter_digits(<<x, rest::binary>>) when x in ?1..?9, do: <<x>> <> filter_digits(rest)
+  def filter_digits(<<"one", rest::binary>>), do: "1" <> filter_digits("e" <> rest)
+  def filter_digits(<<"two", rest::binary>>), do: "2" <> filter_digits("o" <> rest)
+  def filter_digits(<<"three", rest::binary>>), do: "3" <> filter_digits("e" <> rest)
+  def filter_digits(<<"four", rest::binary>>), do: "4" <> filter_digits(rest)
+  def filter_digits(<<"five", rest::binary>>), do: "5" <> filter_digits("e" <> rest)
+  def filter_digits(<<"six", rest::binary>>), do: "6" <> filter_digits(rest)
+  def filter_digits(<<"seven", rest::binary>>), do: "7" <> filter_digits("n" <> rest)
+  def filter_digits(<<"eight", rest::binary>>), do: "8" <> filter_digits("t" <> rest)
+  def filter_digits(<<"nine", rest::binary>>), do: "9" <> filter_digits("e" <> rest)
+  def filter_digits(<<_, rest::binary>>), do: filter_digits(rest)
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, PartTwo, <<70, 79, 82, 49, 0, 0, 15, ...>>, {:filter_digits, 1}}
+```
+
+```elixir
+"""
+two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen
+"""
+|> String.split()
+|> Enum.map(&PartTwo.parse/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+281
+```
+
+```elixir
+(__DIR__ <> "/assets/day-1-calibration.txt")
+|> File.read!()
+|> String.split()
+|> Enum.map(&PartTwo.parse/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+55701
+```
