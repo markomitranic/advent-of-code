@@ -1,6 +1,6 @@
 <!-- livebook:{"persist_outputs":true} -->
 
-# Untitled notebook
+# Day 1: Trebuchet?!
 
 ```elixir
 Mix.install([
@@ -8,7 +8,7 @@ Mix.install([
 ])
 ```
 
-## Day 1: Trebuchet?!
+## Part One
 
 ```elixir
 """
@@ -116,6 +116,70 @@ zoneight234
 |> File.read!()
 |> String.split()
 |> Enum.map(&PartTwo.parse/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+55701
+```
+
+## Try it with indexes
+
+```elixir
+defmodule PartTwo1 do
+  @numbers %{
+    "1" => "1",
+    "2" => "2",
+    "3" => "3",
+    "4" => "4",
+    "5" => "5",
+    "6" => "6",
+    "7" => "7",
+    "8" => "8",
+    "9" => "9",
+    "one" => "1",
+    "two" => "2",
+    "three" => "3",
+    "four" => "4",
+    "five" => "5",
+    "six" => "6",
+    "seven" => "7",
+    "eight" => "8",
+    "nine" => "9",
+    "ten" => "10",
+    "eleven" => "11",
+    "twelve" => "12",
+    "thirteen" => "13",
+    "fourteen" => "14",
+    "fifteen" => "15",
+    "sixteen" => "16",
+    "seventeen" => "17",
+    "eighteen" => "18",
+    "nineteen" => "19",
+    "twenty" => "20"
+  }
+
+  def parse(row) do
+    @numbers
+    |> Map.to_list()
+    |> replace_digits(row)
+    |> String.replace(~r/[^\d]/, "")
+    |> then(&(String.first(&1) <> String.last(&1)))
+    |> String.to_integer()
+  end
+
+  defp replace_digits([], acc), do: acc
+
+  defp replace_digits([{verbose, digit} | tail], acc),
+    do: replace_digits(tail, String.replace(acc, verbose, "#{verbose}#{digit}#{verbose}"))
+end
+
+(__DIR__ <> "/assets/day-1-calibration.txt")
+|> File.read!()
+|> String.split()
+|> Enum.map(&PartTwo1.parse/1)
 |> Enum.sum()
 ```
 
