@@ -1,6 +1,6 @@
 <!-- livebook:{"persist_outputs":true} -->
 
-# Day 1: Trebuchet?!
+# Untitled notebook
 
 ```elixir
 Mix.install([
@@ -8,183 +8,20 @@ Mix.install([
 ])
 ```
 
-## Part One
+## Section
 
 ```elixir
 """
-1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet
+Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 """
-|> String.split()
-|> Enum.map(fn row ->
-  row
-  |> String.replace(~r/[^\d]/, "")
-  |> then(fn row -> String.first(row) <> String.last(row) end)
-  |> Integer.parse()
-  |> elem(0)
-end)
-|> Enum.sum()
-
-# 142
 ```
 
 <!-- livebook:{"output":true} -->
 
 ```
-142
-```
-
-```elixir
-(__DIR__ <> "/assets/day-1-calibration.txt")
-|> File.read!()
-|> String.split()
-|> Enum.map(fn row ->
-  row
-  |> String.replace(~r/[^\d]/, "")
-  |> then(fn row -> String.first(row) <> String.last(row) end)
-  |> Integer.parse()
-  |> elem(0)
-end)
-|> Enum.sum()
-
-# 56397
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-56397
-```
-
-## Part Two
-
-```elixir
-defmodule PartTwo do
-  def parse(row),
-    do:
-      row
-      |> filter_digits()
-      |> then(&(String.first(&1) <> String.last(&1)))
-      |> String.to_integer()
-
-  def filter_digits(<<>>), do: <<>>
-  def filter_digits(<<x, rest::binary>>) when x in ?1..?9, do: <<x>> <> filter_digits(rest)
-  def filter_digits(<<"one", rest::binary>>), do: "1" <> filter_digits("e" <> rest)
-  def filter_digits(<<"two", rest::binary>>), do: "2" <> filter_digits("o" <> rest)
-  def filter_digits(<<"three", rest::binary>>), do: "3" <> filter_digits("e" <> rest)
-  def filter_digits(<<"four", rest::binary>>), do: "4" <> filter_digits(rest)
-  def filter_digits(<<"five", rest::binary>>), do: "5" <> filter_digits("e" <> rest)
-  def filter_digits(<<"six", rest::binary>>), do: "6" <> filter_digits(rest)
-  def filter_digits(<<"seven", rest::binary>>), do: "7" <> filter_digits("n" <> rest)
-  def filter_digits(<<"eight", rest::binary>>), do: "8" <> filter_digits("t" <> rest)
-  def filter_digits(<<"nine", rest::binary>>), do: "9" <> filter_digits("e" <> rest)
-  def filter_digits(<<_, rest::binary>>), do: filter_digits(rest)
-end
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-{:module, PartTwo, <<70, 79, 82, 49, 0, 0, 15, ...>>, {:filter_digits, 1}}
-```
-
-```elixir
-"""
-two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen
-"""
-|> String.split()
-|> Enum.map(&PartTwo.parse/1)
-|> Enum.sum()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-281
-```
-
-```elixir
-(__DIR__ <> "/assets/day-1-calibration.txt")
-|> File.read!()
-|> String.split()
-|> Enum.map(&PartTwo.parse/1)
-|> Enum.sum()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-55701
-```
-
-## Try it with indexes
-
-```elixir
-defmodule PartTwo1 do
-  @numbers %{
-    "1" => "1",
-    "2" => "2",
-    "3" => "3",
-    "4" => "4",
-    "5" => "5",
-    "6" => "6",
-    "7" => "7",
-    "8" => "8",
-    "9" => "9",
-    "one" => "1",
-    "two" => "2",
-    "three" => "3",
-    "four" => "4",
-    "five" => "5",
-    "six" => "6",
-    "seven" => "7",
-    "eight" => "8",
-    "nine" => "9",
-    "ten" => "10",
-    "eleven" => "11",
-    "twelve" => "12",
-    "thirteen" => "13",
-    "fourteen" => "14",
-    "fifteen" => "15",
-    "sixteen" => "16",
-    "seventeen" => "17",
-    "eighteen" => "18",
-    "nineteen" => "19",
-    "twenty" => "20"
-  }
-
-  def parse(row) do
-    @numbers
-    |> Map.to_list()
-    |> replace_digits(row)
-    |> String.replace(~r/[^\d]/, "")
-    |> then(&(String.first(&1) <> String.last(&1)))
-    |> String.to_integer()
-  end
-
-  defp replace_digits([], acc), do: acc
-
-  defp replace_digits([{verbose, digit} | tail], acc),
-    do: replace_digits(tail, String.replace(acc, verbose, "#{verbose}#{digit}#{verbose}"))
-end
-
-(__DIR__ <> "/assets/day-1-calibration.txt")
-|> File.read!()
-|> String.split()
-|> Enum.map(&PartTwo1.parse/1)
-|> Enum.sum()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-55701
+"Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green\nGame 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue\nGame 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red\nGame 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red\nGame 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green\n"
 ```

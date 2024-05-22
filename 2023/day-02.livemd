@@ -1,0 +1,189 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Day 2: Cube Conundrum
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.11.3"}
+])
+```
+
+## Part One
+
+```elixir
+possible_bet = %{
+  "red" => 12,
+  "green" => 13,
+  "blue" => 14
+}
+
+"""
+Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+"""
+|> String.split("\n")
+|> Enum.reject(fn line -> "" == line end)
+|> Enum.map(fn line -> String.split(line, ":") end)
+|> Enum.map(fn [game_id_raw, pulls_raw] ->
+  id =
+    ~r/Game (\d+)/
+    |> Regex.run(game_id_raw)
+    |> Enum.at(1)
+    |> String.to_integer()
+
+  pulls =
+    pulls_raw
+    |> String.split(";")
+    |> Enum.reduce(%{}, fn line, acc ->
+      line
+      |> String.split(",")
+      |> Enum.map(&String.split/1)
+      |> Enum.reduce(acc, fn [dice, colour], acc ->
+        Map.put(acc, colour, Map.get(acc, colour, 0) + String.to_integer(dice))
+      end)
+    end)
+
+  is_possible =
+    possible_bet
+    |> Enum.to_list()
+    |> Enum.map(fn {bet_colour, bet_dice} ->
+      Map.get(pulls, bet_colour, 0) <= bet_dice
+    end)
+    |> Enum.all?()
+
+  {id, pulls, is_possible}
+end)
+|> Enum.reduce(0, fn
+  {id, _, true}, acc -> acc + id
+  _, acc -> acc
+end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+8
+```
+
+## Alternative Try
+
+```elixir
+defmodule DayTwo do
+  def parse_line(line) do
+    <<"Game ">> <> id_raw = line
+    {id, rest} = Integer.parse(id_raw)
+    <<": ">> <> pulls_raw = rest
+    {id, parse_pulls(pulls_raw)}
+  end
+
+  def parse_pulls(pulls_raw) do
+    pulls_raw
+    |> String.trim()
+    |> String.split(";")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(fn pull ->
+      pull
+      |> String.split(",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(fn result ->
+        result
+        |> Integer.parse()
+        |> case do
+          {num, " red"} -> {:red, num}
+          {num, " green"} -> {:green, num}
+          {num, " blue"} -> {:blue, num}
+        end
+      end)
+      |> then(&Keyword.merge([red: 0, green: 0, blue: 0], &1))
+      |> Map.new()
+    end)
+  end
+
+  def filter_possible(games, red: red_limit, green: green_limit, blue: blue_limit) do
+    games
+    |> Enum.filter(fn {_id, pulls} ->
+      pulls
+      |> Enum.all?(fn
+        %{red: red, green: green, blue: blue}
+        when red <= red_limit and green <= green_limit and blue <= blue_limit ->
+          true
+
+        _ ->
+          false
+      end)
+    end)
+  end
+end
+
+"""
+Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+"""
+|> String.split("\n")
+|> Enum.reject(fn line -> "" == line end)
+|> Enum.map(&DayTwo.parse_line/1)
+|> DayTwo.filter_possible(red: 12, green: 13, blue: 14)
+|> Enum.map(fn {id, _} -> id end)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+8
+```
+
+```elixir
+(__DIR__ <> "/assets/day-2-game.txt")
+|> File.read!()
+|> String.split("\n")
+|> Enum.reject(fn line -> "" == line end)
+|> Enum.map(&DayTwo.parse_line/1)
+|> DayTwo.filter_possible(red: 12, green: 13, blue: 14)
+|> Enum.map(fn {id, _} -> id end)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2617
+```
+
+## Part Two
+
+```elixir
+defmodule DayTwo.PartTwo do
+  def solve(input) do
+    input
+    |> Enum.map(fn {id, pulls} ->
+      min_red = pulls |> Enum.map(&Map.fetch!(&1, :red)) |> Enum.max()
+      min_green = pulls |> Enum.map(&Map.fetch!(&1, :green)) |> Enum.max()
+      min_blue = pulls |> Enum.map(&Map.fetch!(&1, :blue)) |> Enum.max()
+
+      {id, min_red * min_green * min_blue}
+    end)
+    |> Enum.map(fn {_id, power} -> power end)
+    |> Enum.sum()
+  end
+end
+
+(__DIR__ <> "/assets/day-2-game.txt")
+|> File.read!()
+|> String.split("\n")
+|> Enum.reject(fn line -> "" == line end)
+|> Enum.map(&DayTwo.parse_line/1)
+|> DayTwo.PartTwo.solve()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+59795
+```
